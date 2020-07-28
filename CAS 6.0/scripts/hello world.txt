@@ -1,0 +1,4 @@
+⍝ Basic "Hello World!"
+
+⍝ Display a constant string using a MessageBox.
+ CasSession.MessageBox'"Hello World!"'
