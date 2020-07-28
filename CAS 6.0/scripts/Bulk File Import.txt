@@ -1,0 +1,111 @@
+⍝ Read multiple files from the same source     
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝     
+     
+⍝ Create a wizard     
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝     
+     
+ W←Wizard.New''     
+ W.Caption←'Read Bulk Files'     
+ W.Sizeable←1     
+ W.Start''     
+     
+     
+⍝ Select the folder     
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝     
+     
+ GF←WizSelectFolder.New W     
+ GF.Title←'Select the Directory with the Files.'     
+ GF.Subtitle←'Click Next to continue...'     
+     
+ GF.Run''     
+ Folder←GF.UserInput.FolderName     
+     
+⍝ Build a blank recordset     
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝     
+     
+ RS←RecordSet.New''     
+     
+⍝ Get the current cas file objects and the list of files in the directory     
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝     
+     
+ ThisCas←CasSession.GetCurrentFile''     
+ ⍝FileCalcs←ThisCas.GetItem '\Bulk Import\My Calcs'   
+ Files←Shell.GetLongFileNames Folder     
+ ⍝Files←Files.WithSubString '.xls'     
+ NumberOfFiles←Files.Count''     
+ Message1←CharString.New 'Number of Files in folder:'     
+ Message1.Add NumberOfFiles.ToString''     
+ ⍝Message1.Show''     
+      
+⍝ Get the correct Import Layout and create the layout path     
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝     
+     
+ CASItemsThisFile←CasItems.New''     
+ CASItemsThisFile←CASItemsThisFile.GetRecordSet''                                   ⍝ Get CAS Items from this File...     
+ ImportLayoutDataSet←CASItemsThisFile.Select'TYPE ss "Import"' 'FULLNAME'           ⍝ Get Imports from the CAS Items...     
+ ImportLayoutNames←ImportLayoutDataSet.GetField'FULLNAME'     
+ ImportLayouts←ImportLayoutNames.CollectionOfUniques''                              ⍝ Put Imports into Collection object...     
+ W3←WizGetInputs.New W                                                              ⍝ New Wiz Get Inputs page...     
+ W3.Title←'Select your Import Layout'     
+ W3.Subtitle←'Click Next to Continue'     
+ W3.AddInput'Combo' 'ImportLayouts' 'Import Layouts:'ImportLayouts                  ⍝ Let user choose from existing import layouts ...     
+ W3.Run''     
+     
+     
+⍝ A Wiz Progress screen to keep track of # of files imported     
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝     
+     
+ WProg←WizProgress.New W     
+ WProg.Messages←1     
+ WProg.Image←'TaskList'     
+ WProg.Run''     
+⍝ Build the counter     
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝     
+     
+ I←Numeric.New 0     
+     
+⍝ Import the data files and append create one record set     
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝     
+     
+ :While (I.Lt Files.Count'').Value     
+     
+     GetData←Import.New''     
+     GetData.ImportLayout←ThisCas.GetItem W3.UserInput.ImportLayouts     
+     GetData.FileName←(Files.Item I).Value     
+     IData←GetData.Execute''    
+	    
+     ⍝IData.RunCalcs FileCalcs   
+	    
+     AddFileNameFieldCalc←CharString.New '"\" bstrip "'     
+     AddFileNameFieldCalc.Add (Files.Item I).Value     
+     AddFileNameFieldCalc.Add '"'     
+          
+     IData.AddField 'FILENAME' AddFileNameFieldCalc     
+     RS←RS.Catenate IData     
+          
+     I←I.Plus 1     
+     
+     ProgMSG←CharString.New'Completed '     
+     ProgMSG.Add I.ToString''     
+     ProgMSG.Add' of '     
+     ProgMSG.Add NumberOfFiles.ToString''     
+     ProgMSG.Add' files.'     
+     WProg.AddMessage ProgMSG     
+     
+ :EndWhile     
+     
+⍝ Put the combined data in the current file     
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝     
+ WProg.End''     
+ RS.SetCurrentFile''     
+     
+ W.LastPage'Finish'     
+     
+ Info←WizInfo.New W     
+ Info.Title←'Files Imported.'     
+ Info.Subtitle←'Click Finish to exit the Wizard...'     
+ Info.Run''     
+     
+ W.End''     
+     
+     
