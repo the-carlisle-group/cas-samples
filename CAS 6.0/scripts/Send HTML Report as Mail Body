@@ -1,0 +1,26 @@
+⍝ Get the current file as RecordSet
+rs ← CasSession.GetCurrentFile'' 
+
+⍝ Get report item by path.
+i ← rs.GetItem '\CAS Items\CrossTab\Cross Tab Sample' 
+
+⍝ Run report to HtML
+rep ← rs.RunCASReport i 'HTML' 0 
+
+⍝ Open up the generated temporary file 
+repFile ← TextFile.New rep.ReportPath 
+
+⍝ Read into a StringList
+repData ← repFile.Read2'' 
+ 
+⍝ Create a new mail object and set properties
+m ← Mail.New'' 
+m.Subject ←  'My Report' 
+m.AddTo 'support@carlislegroup.com' 
+
+⍝ IsHTML must be set to 1 and Body must be assigned after IsHTML is set to 1.
+m.IsHTML ← 1 
+
+⍝ Convert StringList to a CharString, which now has the HTML body and assign to Mail.Body
+m.Body ← repData.ToString'' 
+m.Send''
