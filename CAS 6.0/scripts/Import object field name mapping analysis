@@ -1,0 +1,214 @@
+⍝ Import Layout Fieldname Mapping Analysis   
+⍝
+⍝⍝⍝⍝⍝⍝⍝
+⍝⍝⍝⍝⍝⍝⍝ Minimum CAS Version 6.0.899
+⍝⍝⍝⍝⍝⍝⍝
+⍝
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝   
+   
+ cs←CasSession.GetCurrentFile''   
+   
+⍝ Start the Wizard   
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝   
+   
+ w←Wizard.New''   
+ w.Caption←'Import Analysis'   
+ w.Sizeable←1   
+ w.Start''   
+   
+ ref←cs.GetDataReference''               ⍝ Data Reference of current session CAS   
+ ref2←ref.Select'' 'NAME,TYPE,FORMAT'   
+ ref2.Key←'NAME'   
+   
+⍝ Stop the Wizard if there is no Data Reference defined in the current file.  This is important because the script uses the Reference   
+⍝ to determine the fields that are considered to be "required".  The script will remove any fields mapped in the layouts that   
+⍝ are not in the Reference.   
+   
+   
+ :If (ref2.RowCount'').Eq Numeric.New 0   
+   
+     noref←WizInfo.New w   
+     noref.Title←'No Data Reference Defined.'   
+     noref.Subtitle←'Read below...'   
+     noref.Info←'This wizard is designed to provide insite on field name mapping across incoming data files to a CAS standard as defined in the Data Reference.  If there is no Data Reference defined in this file, there is no frame of reference as to what is important and the final output of this script becomes less meaningfull.'   
+     noref.Run''   
+   
+ :EndIf   
+   
+ DataFolder←CharString.New'C:\Users' ⍝ Default the user Data Folder Input   
+   
+ dir←WizSelectFolder.New w   
+ dir.Title←'Select Folder to Analyze'   
+ dir.Subtitle←'Click Next to continue...'   
+ dir.FolderName←DataFolder.Value   
+ dir.Run''   
+   
+ DataFolder←dir.UserInput.FolderName   
+   
+ FolderDetails←Shell.GetDirectoryFileDetails DataFolder   
+   
+⍝ Stop if there are no files in the directory   
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝   
+   
+ :If (FolderDetails.RowCount'').Eq Numeric.New 0   
+   
+     w.LastPage'Finish'   
+   
+     info←WizStop.New w   
+     info.Title←'No Files in the Selected Directory.'   
+     info.Run''   
+   
+     w.End''   
+   
+ :EndIf   
+   
+ File_Details←FolderDetails.Select'FILEEXT in ''cas''' ''        ⍝ Select out the CAS files...extension is stored all lowercase.   
+   
+ Cas_Full_Filenames←File_Details.GetField'FILEPATH'   
+   
+ rs←RecordSet.New''               ⍝ Set up an empty RecordSet to collect all import layouts   
+   
+⍝ Looping through each CAS file in the directory to build the mappings table   
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝   
+   
+ prog←WizProgress.New w   
+ prog.Image←'TaskList'   
+ prog.Messages←1   
+ prog.Run''   
+ prog.AddMessage'Getting Layouts'   
+ messagestring←CharString.New'File '   
+ messagenum←Numeric.New 1   
+   
+   
+   
+ :For FN :In (Cas_Full_Filenames.ToStringList'')   
+   
+     prog.AddMessage(messagestring.Cat(messagenum.ToString'')) ⍝ adds the file number getting read for progress status...   
+   
+     cs_data←CasSession.GetFile FN   
+   
+     ci←CasItems.New cs_data   
+   
+     index←ci.GetRecordSet''   
+     imports←index.Select'TYPE in "Import"' ''   
+   
+     ilist←(imports.GetField'FULLNAME').ToStringList''   
+   
+     n←ilist.Count''   
+     i←Numeric.New 0   
+   
+   
+     :If n.Ne 0        ⍝ Run only there are import items in the file   
+   
+         :While (i.Lt n).Value     ⍝ Loop through each import item   
+   
+             i1←Import.New''   
+             i1.ImportLayout←cs_data.GetCasItem ilist.Item i   
+             layout←i1.GetObjectOptionsRecordSet'Layout'   
+   
+             rs←rs.Catenate layout       ⍝ Append all layout together   
+             i←i.Plus Numeric.New 1   
+   
+         :EndWhile   
+   
+     :EndIf   
+   
+     messagenum←messagenum.Plus Numeric.New 1   
+   
+ :EndFor   
+   
+ prog.End''   
+   
+⍝ Stop if there are no rows in the import mapping table created above   
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝   
+   
+ :If (rs.RowCount'').Eq Numeric.New 0   
+   
+     w.LastPage'Finish'   
+   
+     info←WizInfo.New w   
+     info.Title←'No Import Layouts Found.'   
+     info.Run''   
+   
+     w.End''   
+   
+ :Else   
+   
+     f←rs.Execute'ljust uppercase INNAME'   
+     f.Name←'INNAME'   
+     rs.AddField f   
+     ⍝rs.Show'RS'   
+   
+     rsshow←WizEditRecords.New w   
+     rsshow.Title←'All Import Mappings'   
+     rsshow.Subtitle←'Click Next to continue...'   
+     rsshow.RecordSet←rs   
+     rsshow.LockedFields←(rs.GetFieldNames'').ToString''   
+     rsshow.Run''   
+   
+     agg←Frequency.New''                     ⍝ Aggregate all import layout by CASNAME   
+     agg.RecordSet←rs   
+     agg.Field←'CASNAME'   
+     agg.ColStats←cs.GetItem'\System Folders\Column Statistics\ColStatsImportMap'   
+     aggrs←agg.Execute''   
+   
+     aggrs.Key←'CASNAME'   
+   
+     f←aggrs.FlagMatchingRecords ref2 ⍝ This identifies the mappings we are interested in based on the Data Reference   
+     f.Name←'MATCH'   
+     aggrs.AddField f   
+     aggrs.AddNewFields ref2   
+   
+     aggrsout←aggrs.Select'MATCH eq 1' ''    ⍝ Keep only fields found in Reference   
+     aggrsnotinref←aggrs.Select'MATCH eq 0' 'CASNAME,COUNT,INCOMINGNAMES,INCOMING_NAMES_WITH_PCT'    ⍝ Fields NOT found in Reference   
+     ⍝aggrsnotinref.Show'Fields Not Found in Reference'   
+   
+     aggrsnotinrefshow←WizEditRecords.New w   
+     aggrsnotinrefshow.Title←'Mapped Fields not in Data Reference'   
+     aggrsnotinrefshow.Subtitle←'Click Next to continue...'   
+     aggrsnotinrefshow.RecordSet←aggrsnotinref   
+     aggrsnotinrefshow.LockedFields←(aggrsnotinref.GetFieldNames'').ToString''   
+     aggrsnotinrefshow.Run''   
+   
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝   
+     aggrsoutShow←aggrsout.Select'' 'CASNAME,COUNT,INCOMINGNAMES,INCOMING_NAMES_WITH_PCT'   
+     ⍝aggrsoutShow.Show'Report on Mapping for Reference Fields'   
+   
+     aggrsoutShowshow←WizEditRecords.New w   
+     aggrsoutShowshow.Title←'Report on Mapping for Reference Fields'   
+     aggrsoutShowshow.Subtitle←'Click Next to continue...'   
+     aggrsoutShowshow.RecordSet←aggrsoutShow   
+     aggrsoutShowshow.LockedFields←(aggrsoutShow.GetFieldNames'').ToString''   
+     aggrsoutShowshow.Run''   
+   
+   
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝   
+   
+     f←aggrsout.RunCalcTable cs.GetItem'\System Folders\Calculation Tables\PopulateDefaultValue'   
+     f.Name←'DEFVALUE'   
+     aggrsout.AddField f   
+   
+     f←aggrsout.Execute'deb "default " cat """" cat dtb INCOMINGNAMES cat """ " cat DEFVALUE'   
+     f.Name←'EXPRESSION'   
+     aggrsout.AddField f   
+   
+     aggrsout.SetTemplate cs                ⍝ Copy over the current CAS settings to aggrsout   
+     ⍝ aggrsout.SetCurrentFile''              ⍝ Overwrite the current CAS data   
+   
+   
+     calcset←aggrsout.Select'' 'NAME,EXPRESSION,FORMAT,TYPE'   
+     ⍝calcset.Show'Mapping Calcs Output'   
+   
+     w.LastPage'Finish'   
+   
+     calcsetshow←WizEditRecords.New w   
+     calcsetshow.Title←'Mapping Calcs Output'   
+     calcsetshow.Subtitle←'Click Next to continue...'   
+     calcsetshow.RecordSet←calcset   
+     calcsetshow.LockedFields←(calcset.GetFieldNames'').ToString''   
+     calcsetshow.Run''   
+   
+   
+ :EndIf   
+   
+ w.End''   
