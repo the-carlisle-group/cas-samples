@@ -1,6 +1,16 @@
 CAS scripts will have native file and event logging; CSV and Windows Event Log.
 
-### CSV Format
+### CSV 
+
+CAS will generate a new log files in the directory defined in within System->File Settings properties.  The filename will use the Coordinated Universal Time (UTC) for its date to avoiding conflicts based on regions.  
+
+##### Filename format
+cas_script_log_YYYYMMDD.csv
+
+##### Example
+![image](https://user-images.githubusercontent.com/5807754/115907462-86af0500-a42e-11eb-871a-d03eb54399d7.png)
+
+#### Format
 
 Column Definition
 
