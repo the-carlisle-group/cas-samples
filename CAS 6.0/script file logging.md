@@ -26,7 +26,7 @@ Column Definition
 Name|Type|Format
 --|--|--
 TIMESTAMP|DateTime|ISO-8601
-TYPE|String|INFO,WARN,ERROR
+TYPE|String|INFO, WARN, ERROR and DEBUG
 FILE|String|Current File
 USER|String|Current User
 COMPUTER|String|Computer Name
@@ -43,14 +43,16 @@ Complex text values are esacped with double-quotes.
 
 TIMESTAMP|TYPE|FILE|USER|COMPUTER|PROCESSNAME|PROCESSID|BATCHSCRIPT|SCRIPT|LINE|MESSAGE
 --|--|--|--|--|--|--|--|--|--|--
-2021-04-23T15:11:22Z|INFO|"c:\sample.cas"|"username"|"DESKTOP-FC6HT0G"|"myprocess"|12996||"Portfolio Summary"||"START"
-2021-04-23T15:11:23Z|INFO|"c:\sample.cas"|"username"|"DESKTOP-FC6HT0G"|"myprocess"|12996||"Portfolio Summary"|9|"starting wizard"
-2021-04-23T15:14:14Z|INFO|"c:\sample.cas"|"username"|"DESKTOP-FC6HT0G"|"myprocess"|12996||"Portfolio Summary"||"SUCCESS"
-2021-04-23T15:30:08Z|INFO|"c:\sample.cas"|"username"|"DESKTOP-FC6HT0G"|"myprocess"|12996||"Portfolio Summary"||"START"
-2021-04-23T15:30:08Z|INFO|"c:\sample.cas"|"username"|"DESKTOP-FC6HT0G"|"myprocess"|12996||"Portfolio Summary"|9|"starting wizard"
-2021-04-23T15:30:18Z|INFO|"c:\sample.cas"|"username"|"DESKTOP-FC6HT0G"|"myprocess"|12996||"Portfolio Summary"||"SUCCESS"
-2021-04-23T15:34:43Z|INFO|"c:\sample.cas"|"username"|"DESKTOP-FC6HT0G"|"myprocess"|12996||"Portfolio Summary"||"START"
-2021-04-23T15:34:43Z|INFO|"c:\sample.cas"|"username"|"DESKTOP-FC6HT0G"|"myprocess"|12996||"Portfolio Summary"|10|"starting wizard"
+2021-04-23T19:10:59Z,DEBUG,C:\temp\sample1.cas,norbe,DESKTOP-FC6HT0G,dyalog,9068,,Test Log Script,0,Records: 2661
+2021-04-23T19:10:59Z,DEBUG,C:\temp\sample1.cas,norbe,DESKTOP-FC6HT0G,dyalog,9068,,Test Log Script,0,Fields: 112
+2021-04-23T19:13:51Z,DEBUG,C:\temp\sample1.cas,norbe,DESKTOP-FC6HT0G,dyalog,9068,,Test Log Script,0,Object Type = RecordSet; Records: 2661
+2021-04-23T19:13:51Z,DEBUG,C:\temp\sample1.cas,norbe,DESKTOP-FC6HT0G,dyalog,9068,,Test Log Script,0,Object Type = RecordSet; Fields: 112
+2021-04-23T19:13:51Z,INFO,C:\temp\sample1.cas,norbe,DESKTOP-FC6HT0G,dyalog,9068,,Test Log Script,2,I'm logging in my script!.
+2021-04-23T19:13:53Z,DEBUG,C:\temp\sample1.cas,norbe,DESKTOP-FC6HT0G,dyalog,9068,,Test Log Script,4,
+2021-04-23T19:13:53Z,INFO,C:\temp\sample1.cas,norbe,DESKTOP-FC6HT0G,dyalog,9068,,Test Log Subscript,,START
+2021-04-23T19:13:53Z,WARN,C:\temp\sample1.cas,norbe,DESKTOP-FC6HT0G,dyalog,9068,,Test Log Subscript,0,Warning test in the subscript.
+2021-04-23T19:13:53Z,INFO,C:\temp\sample1.cas,norbe,DESKTOP-FC6HT0G,dyalog,9068,,Test Log Subscript,,SUCCESS
+2021-04-23T19:13:53Z,INFO,C:\temp\sample1.cas,norbe,DESKTOP-FC6HT0G,dyalog,9068,,Test Log Script,,SUCCESS
 
 #### How-To
 
