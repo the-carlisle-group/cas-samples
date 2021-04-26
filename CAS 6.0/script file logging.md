@@ -32,9 +32,10 @@ USER|String|Current User
 COMPUTER|String|Computer Name
 PROCESSNAME|String|Windows Process Name
 PROCESSID|INT|Windows Process ID
+SCRIPTRUNTIMEID|GUID|Identifier for script runtime instance 
 BATRCHSCRIPT|String|Batch Script Parameter
-SCRIPT|String|Current Script
-LINE|INT|Current Line
+SCRIPTNAME|String|Current Script
+SCRIPTLINE|INT|Current Line
 MESSAGE|String|User or Auto-Generated Message
 
 Complex text values are esacped with double-quotes.
@@ -43,7 +44,7 @@ Complex text values are esacped with double-quotes.
 
 ![image](https://user-images.githubusercontent.com/5807754/115920691-2a54e100-a440-11eb-940a-2616174cad73.png)
 
-![image](https://user-images.githubusercontent.com/5807754/115920917-73a53080-a440-11eb-850b-e5f13056084e.png)
+![image](https://user-images.githubusercontent.com/5807754/116114609-219e1e00-a67f-11eb-9e54-6d5813bc94ea.png)
 
 #### How-To
 
@@ -79,4 +80,4 @@ CasSession.WriteLogWarn 'Warning test in the subscript.'
 
 #### CSV Output
 
-![image](https://user-images.githubusercontent.com/5807754/115905889-63835600-a42c-11eb-8cd2-8e5a92165c3c.png)
+![image](https://user-images.githubusercontent.com/5807754/116114609-219e1e00-a67f-11eb-9e54-6d5813bc94ea.png)
