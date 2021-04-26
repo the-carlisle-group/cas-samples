@@ -1,8 +1,6 @@
 CAS scripts will have native file logging.  Feature available starting in CAS 6.0.1035+  
 
-#### CSV 
-
-CAS will generate a new log files in the directory defined in within System->File Settings properties.  The filename will use the Coordinated Universal Time (UTC) for its date to avoiding conflicts based on region.  Log errors will not prevent script from running.  
+New log files will be generated in the directory defined within System->File Settings properties.  The filename will use Coordinated Universal Time (UTC) for its date to avoiding conflicts based on region.  Log errors will not prevent scripts from running.
 
 ##### System->File Options
 
@@ -12,6 +10,13 @@ Option | Description
 --|--
 Log Directory|Directory storing daily log files.
 Log Active|Condition when to write log
+
+Log Active|Description
+--|--
+None|Disabled
+Always|Always write to the temp or user defined directory.
+Batch|Only when in batch mode.  Batch mode is true when both File and Script command line parameters are set.
+Debug|For deubgging only and should not be used in runtime. Log with debug details for most executed script lines. Debug may write senseitve information to the log file and care should be take to remove these when debugging is complete.
 
 ##### Filename format
 cas_script_log_YYYYMMDD.csv
